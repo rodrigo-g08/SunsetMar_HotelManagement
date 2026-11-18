@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { Icon, cx } from '@/components/ui'
+import { Icon, Loading, cx } from '@/components/ui'
 import type { IconName } from '@/components/ui/icons'
 import { useSession, useTurno } from '@/context/SessionContext'
 import { limaParts, nombreTurno } from '@/lib/time'
@@ -89,7 +89,7 @@ export function AppShell() {
             <Icon name="plus" size={15} />Nueva reserva
           </NavLink>
         </header>
-        <main className="flex min-w-0 flex-col gap-4 px-4 py-5 md:px-6"><Outlet /></main>
+        <main className="flex min-w-0 flex-col gap-4 px-4 py-5 md:px-6"><Suspense fallback={<Loading />}><Outlet /></Suspense></main>
       </div>
     </div>
   )

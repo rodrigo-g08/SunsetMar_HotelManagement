@@ -20,7 +20,7 @@ export function fechaCorta(iso: string): string {
 /** mar 17 nov */
 export function fechaDia(iso: string): string {
   return new Intl.DateTimeFormat('es-PE', { timeZone: TZ, weekday: 'short', day: 'numeric', month: 'short' })
-    .format(new Date(iso)).replace(/\./g, '')
+    .format(new Date(iso)).replace(/[.,]/g, '')
 }
 
 /** Martes 17 de noviembre de 2026 */

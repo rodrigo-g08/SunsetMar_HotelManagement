@@ -112,7 +112,7 @@ export function EstadoDot({ estado, label = true }: { estado: EstadoHabitacion; 
   const e = ESTADOS_HABITACION[estado]
   return (
     <span className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-ink-2 whitespace-nowrap">
-      <span className="size-2 rounded-full" style={{ background: e.color }} />
+      <span className="size-2 flex-none rounded-full" style={{ background: e.color }} />
       {label && e.nombre}
     </span>
   )

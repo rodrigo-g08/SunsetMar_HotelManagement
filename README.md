@@ -27,6 +27,16 @@ docs/             Configuración, despliegue y guía de uso
 
 Las reglas críticas viven en la base de datos (cruces de horario, cobro total, transiciones de estado, cuadre de caja) para que se cumplan aunque haya dos pestañas abiertas o falle la red a mitad de una operación.
 
+## Hitos
+
+| Hito | Contenido | Migración |
+|---|---|---|
+| 1 · Base | Proyecto, catálogo de 35 habitaciones, tarifas, ingreso con turno y nombre, respaldos | `0001_base.sql` |
+| 2 · Reservas | Reservas con pago total, calendario, regla de limpieza, fichas, carga histórica | `0002_reservas.sql` |
+| 3 · Estadías | Check-in y check-out en un paso, ficha de huéspedes con autocompletado | `0003_estadias.sql` |
+| 4 · Caja | Apertura, ventas A&B, egresos, cierre por denominaciones, reporte y CSV | `0004_caja.sql` |
+| 5 · Inicio | Indicadores y gráficos del día, carga diferida de pantallas, guía de uso | `0005_dashboard.sql` |
+
 ## Puesta en marcha local
 
 ```powershell
@@ -35,7 +45,7 @@ copy .env.example .env.local   # complete URL y anon key de Supabase
 npm run dev
 ```
 
-La configuración completa de Supabase, Cloudflare y los respaldos está en [docs/CONFIGURACION.md](docs/CONFIGURACION.md).
+La configuración completa de Supabase, Cloudflare y los respaldos está en [docs/CONFIGURACION.md](docs/CONFIGURACION.md). La guía para recepción está en [docs/GUIA_DE_USO.md](docs/GUIA_DE_USO.md).
 
 ## Scripts
 
