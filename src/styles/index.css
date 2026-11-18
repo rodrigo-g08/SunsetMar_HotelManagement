@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@font-face { font-family: "Plex"; font-weight: 400; font-display: swap; src: url("/fonts/ibm-plex-sans-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Plex"; font-weight: 500; font-display: swap; src: url("/fonts/ibm-plex-sans-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Plex"; font-weight: 600; font-display: swap; src: url("/fonts/ibm-plex-sans-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "PlexMono"; font-weight: 400; font-display: swap; src: url("/fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "PlexMono"; font-weight: 500; font-display: swap; src: url("/fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2"); }
+
+/* Tokens de marca y de interfaz. Escala de espacios de 4/8 px (la de Tailwind). */
+@theme {
+  --font-sans: "Plex", system-ui, sans-serif;
+  --font-mono: "PlexMono", ui-monospace, monospace;
+
+  --color-petrol: #153A43;
+  --color-petrol-8: #1F4B56;
+  --color-petrol-2: #D5E1E3;
+  --color-petrol-1: #EBF1F2;
+  --color-terra: #B46E4B;
+  --color-terra-btn: #9E5634;
+  --color-terra-1: #F7ECE5;
+  --color-sand: #DFD3C7;
+  --color-canvas: #FAF8F4;
+  --color-ink: #16252A;
+  --color-ink-2: #4A5A5F;
+  --color-ink-3: #6F7E83;
+  --color-line: #E6E0D7;
+  --color-line-2: #EFEAE3;
+  --color-ok: #24704F;
+  --color-ok-1: #E3F1EA;
+  --color-warn: #8A5A0E;
+  --color-warn-1: #FAEFD8;
+  --color-bad: #8C2F27;
+  --color-bad-1: #F7E4E1;
+  --color-info: #2A5A86;
+  --color-info-1: #E4EDF6;
+
+  /* Estados de habitación */
+  --color-st-ocupada: #153A43;
+  --color-st-limpia: #2E8463;
+  --color-st-sucia: #C9932E;
+  --color-st-limpieza: #4A79AD;
+  --color-st-fuera: #A8463D;
+
+  --radius-panel: 12px;
+}
+
+@layer base {
+  html, body, #root { height: 100%; }
+  body {
+    @apply bg-canvas text-ink font-sans antialiased;
+    font-size: 14px;
+    line-height: 20px;
+  }
+  :focus-visible { outline: 2px solid var(--color-petrol); outline-offset: 2px; }
+}
+
+@utility num { font-variant-numeric: tabular-nums; }
+@utility hatch-fuera { background-image: repeating-linear-gradient(135deg, #E9C9C3 0 3px, #F9EEEC 3px 8px); }
+@utility hatch-sucia { background-image: repeating-linear-gradient(135deg, #F1DFB8 0 3px, #FBF3E2 3px 8px); }
+@utility hatch-limpieza { background-image: repeating-linear-gradient(135deg, #C9DAEC 0 3px, #EEF3F9 3px 8px); }

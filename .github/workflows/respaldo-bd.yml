@@ -1,0 +1,59 @@
+name: Respaldo diario de la base de datos
+
+# Copia nocturna de Supabase (plan gratuito sin respaldos automáticos).
+# El archivo se cifra con AES-256 antes de guardarse como artefacto,
+# porque contiene datos personales de huéspedes.
+#
+# Secretos requeridos (Settings > Secrets and variables > Actions):
+#   SUPABASE_DB_URL     Cadena de conexión "Session pooler" de Supabase (Project Settings > Database)
+#   BACKUP_PASSPHRASE   Frase larga para cifrar; guárdela fuera de GitHub
+#
+# Restaurar:  gpg -d respaldo.sql.gz.gpg | gunzip > respaldo.sql
+
+on:
+  schedule:
+    - cron: '0 8 * * *' # 03:00 en Lima
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  respaldo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verificar secretos
+        env:
+          DB: ${{ secrets.SUPABASE_DB_URL }}
+          PASS: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          if [ -z "$DB" ] || [ -z "$PASS" ]; then
+            echo "Faltan SUPABASE_DB_URL o BACKUP_PASSPHRASE"; exit 1
+          fi
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Volcar esquema y datos
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f esquema.sql
+          supabase db dump --db-url "$SUPABASE_DB_URL" --data-only --use-copy -f datos.sql
+          cat esquema.sql datos.sql | gzip -9 > respaldo.sql.gz
+
+      - name: Cifrar
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          gpg --batch --yes --pinentry-mode loopback --symmetric --cipher-algo AES256 \
+            --passphrase "$BACKUP_PASSPHRASE" -o respaldo.sql.gz.gpg respaldo.sql.gz
+          rm -f esquema.sql datos.sql respaldo.sql.gz
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: respaldo-${{ github.run_id }}
+          path: respaldo.sql.gz.gpg
+          retention-days: 30
+          if-no-files-found: error
