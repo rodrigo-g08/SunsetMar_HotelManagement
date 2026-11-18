@@ -10,6 +10,8 @@ import { addDays, limaISO, limaParts } from '@/lib/time'
 import { fechaDia, fechaLarga, hora } from '@/lib/format'
 import { Tape, TapeLegend, type TapeBar, type TapeRow } from './Tape'
 import { ReservaDrawer } from './ReservaDrawer'
+import { CheckinDrawer } from '@/features/estadias/CheckinDrawer'
+import { CheckoutDrawer } from '@/features/estadias/CheckoutDrawer'
 
 type Vista = 'dia' | 'semana'
 
@@ -18,6 +20,8 @@ export function CalendarioPage() {
   const [fecha, setFecha] = useState(() => limaParts().date)
   const [soloMov, setSoloMov] = useState(true)
   const [abierta, setAbierta] = useState<ReservaDTO | null>(null)
+  const [checkin, setCheckin] = useState<ReservaDTO | null>(null)
+  const [checkout, setCheckout] = useState<ReservaDTO | null>(null)
 
   const rango = useMemo(() => {
     if (vista === 'semana') {
@@ -72,9 +76,20 @@ export function CalendarioPage() {
       <Notice tone="warn" icon="sparkle">
         <b className="font-semibold">Regla de limpieza:</b> después de cada salida la habitación queda bloqueada hasta que recepción la marque limpia. Así no se vende un cuarto sucio el mismo día.
       </Notice>
-      <ReservaDrawer reserva={abierta} onClose={() => setAbierta(null)} />
+      <ReservaDrawer reserva={abierta} onClose={() => setAbierta(null)} acciones={accionesEstadia(abierta, (r) => { setAbierta(null); setCheckin(r) }, (r) => { setAbierta(null); setCheckout(r) })} />
+      <CheckinDrawer reserva={checkin} onClose={() => setCheckin(null)} />
+      <CheckoutDrawer reserva={checkout} onClose={() => setCheckout(null)} />
     </>
   )
+}
+
+/** Botón principal del detalle: check-in el día de llegada, check-out si está en casa. */
+function accionesEstadia(r: ReservaDTO | null, checkin: (r: ReservaDTO) => void, checkout: (r: ReservaDTO) => void) {
+  if (!r) return undefined
+  if (r.estado === 'en_casa') return <Button variant="primary" block icon="logout" onClick={() => checkout(r)}>Check-out</Button>
+  if (r.estado === 'confirmada' && limaParts(new Date(r.entrada)).date <= limaParts().date)
+    return <Button variant="dark" block icon="login" onClick={() => checkin(r)}>Check-in</Button>
+  return undefined
 }
 
 /** Convierte habitaciones y reservas en filas de la cinta, con bloqueos de limpieza. */

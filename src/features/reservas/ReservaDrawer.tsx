@@ -54,10 +54,13 @@ export function ReservaDrawer({ reserva, onClose, acciones }: { reserva: Reserva
         <div className="flex items-baseline gap-3"><span className="font-mono text-[26px] font-medium">{r.habitacion}</span><h2 className="text-lg font-semibold">{r.titular}</h2></div>
         <span className="text-[13px] text-ink-2">{fechaDia(r.entrada)} <span className="font-mono">{hora(r.entrada)}</span> → {fechaDia(r.salida)} <span className="font-mono">{hora(r.salida)}</span></span>
       </div>}
-      footer={modo === 'ver' ? (acciones ?? (editable ? <>
-        <Button onClick={() => setModo('reprogramar')} icon="swap">Reprogramar</Button>
-        <Button variant="danger" onClick={() => setModo('cancelar')}>Cancelar reserva</Button>
-      </> : null)) : modo === 'cancelar' ? <>
+      footer={modo === 'ver' ? ((acciones || editable) ? <div className="flex w-full flex-col gap-2">
+        {acciones}
+        {editable && <div className="flex gap-2">
+          <Button block onClick={() => setModo('reprogramar')} icon="swap">Reprogramar</Button>
+          <Button block variant="danger" onClick={() => setModo('cancelar')}>Cancelar</Button>
+        </div>}
+      </div> : null) : modo === 'cancelar' ? <>
         <Button variant="ghost" onClick={() => setModo('ver')}>Volver</Button>
         <Button variant="danger" block loading={cancelar.isPending} onClick={() => cancelar.mutate()}>Confirmar cancelación</Button>
       </> : <>

@@ -11,6 +11,8 @@ import { cotizar, promoDisponible, ReglaError } from '@/services/pricingService'
 import { reservasService, LimpiezaPendienteError } from '@/services/reservasService'
 import { addHours, limaISO, limaParts } from '@/lib/time'
 import { digits, fechaDia, hora, money } from '@/lib/format'
+import { CheckinDrawer } from '@/features/estadias/CheckinDrawer'
+import type { ReservaDTO } from '@/dto/reserva'
 
 type Grupo = 'todas' | 'matrimonial' | 'suites' | 'grupos'
 const GRUPO: Record<Exclude<Grupo, 'todas'>, (n: string) => boolean> = {
@@ -39,7 +41,8 @@ export function NuevaReservaPage() {
   const [metodo, setMetodo] = useState<MetodoPago>('efectivo')
   const [ficha, setFicha] = useState('')
   const [pedirLimpieza, setPedirLimpieza] = useState<string | null>(null)
-  const [hecho, setHecho] = useState<string | null>(null)
+  const [hecho, setHecho] = useState<{ texto: string; id: string; hoy: boolean } | null>(null)
+  const [checkin, setCheckin] = useState<ReservaDTO | null>(null)
 
   const entrada = limaISO(fecha, horaEnt || '13:00')
   const habs = useQuery({ queryKey: ['habitaciones'], queryFn: habitacionesService.listar })
@@ -82,8 +85,9 @@ export function NuevaReservaPage() {
       }
       return reservasService.crear(dto, turno)
     },
-    onSuccess: () => {
-      setHecho(`Reserva registrada en la ${hab}: ${money(elegida?.precio)} cobrados con ${METODOS.find((m) => m.id === metodo)?.nombre.toLowerCase()}.`)
+    onSuccess: (id) => {
+      setHecho({ id, hoy: !historica && fecha === limaParts().date,
+        texto: `Reserva registrada en la ${hab}: ${money(elegida?.precio)} ${historica ? 'registrados' : `cobrados con ${METODOS.find((m) => m.id === metodo)?.nombre.toLowerCase()}`}.` })
       setHab(null); setTitular(''); setDocumento(''); setFicha(''); setPedirLimpieza(null)
       qc.invalidateQueries({ queryKey: ['reservas'] }); qc.invalidateQueries({ queryKey: ['siguiente-ficha'] }); qc.invalidateQueries({ queryKey: ['movimientos'] })
     },
@@ -102,7 +106,12 @@ export function NuevaReservaPage() {
         actions={<label className={cx('inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-[13px] font-medium', historica ? 'border-info bg-info-1 text-info' : 'border-line bg-white')}>
           <input type="checkbox" checked={historica} onChange={(e) => setHistorica(e.target.checked)} className="size-4 accent-petrol" />Reserva pasada (carga histórica)
         </label>} />
-      {hecho && <Notice tone="ok" icon="check">{hecho}</Notice>}
+      {hecho && <Notice tone="ok" icon="check">
+        <div className="flex flex-wrap items-center gap-3">{hecho.texto}
+          {hecho.hoy && <Button size="sm" variant="dark" icon="login" onClick={async () => setCheckin(await reservasService.porId(hecho.id))}>Hacer check-in ahora</Button>}
+        </div>
+      </Notice>}
+      <CheckinDrawer reserva={checkin} onClose={() => { setCheckin(null); setHecho(null) }} />
       {historica && <Notice tone="info">Modo carga histórica: registra estadías ya terminadas para alimentar el historial y los reportes. No cambia el estado de las habitaciones ni la caja del turno.</Notice>}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
