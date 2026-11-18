@@ -12,6 +12,8 @@ import { Tape, TapeLegend, type TapeBar, type TapeRow } from './Tape'
 import { ReservaDrawer } from './ReservaDrawer'
 import { CheckinDrawer } from '@/features/estadias/CheckinDrawer'
 import { CheckoutDrawer } from '@/features/estadias/CheckoutDrawer'
+import { FrigobarAviso } from '@/features/estadias/MovimientosHoy'
+import { useNavigate } from 'react-router-dom'
 
 type Vista = 'dia' | 'semana'
 
@@ -22,6 +24,7 @@ export function CalendarioPage() {
   const [abierta, setAbierta] = useState<ReservaDTO | null>(null)
   const [checkin, setCheckin] = useState<ReservaDTO | null>(null)
   const [checkout, setCheckout] = useState<ReservaDTO | null>(null)
+  const navigate = useNavigate()
 
   const rango = useMemo(() => {
     if (vista === 'semana') {
@@ -78,7 +81,8 @@ export function CalendarioPage() {
       </Notice>
       <ReservaDrawer reserva={abierta} onClose={() => setAbierta(null)} acciones={accionesEstadia(abierta, (r) => { setAbierta(null); setCheckin(r) }, (r) => { setAbierta(null); setCheckout(r) })} />
       <CheckinDrawer reserva={checkin} onClose={() => setCheckin(null)} />
-      <CheckoutDrawer reserva={checkout} onClose={() => setCheckout(null)} />
+      <CheckoutDrawer reserva={checkout} onClose={() => setCheckout(null)}
+        extra={checkout && <FrigobarAviso onRegistrar={() => navigate(`/caja/venta?hab=${checkout.habitacion}`)} />} />
     </>
   )
 }

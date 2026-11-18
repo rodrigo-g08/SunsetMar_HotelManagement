@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Button, ErrorBox, Icon, Loading, Panel, Tag, cx } from '@/components/ui'
 import type { ReservaDTO } from '@/dto/reserva'
@@ -20,6 +20,7 @@ export function MovimientosHoy({ className }: { className?: string }) {
   })
   const [checkin, setCheckin] = useState<ReservaDTO | null>(null)
   const [checkout, setCheckout] = useState<ReservaDTO | null>(null)
+  const navigate = useNavigate()
   const items = q.data ? estadiasService.movimientosDelDia(q.data, hoy) : []
 
   return (
@@ -49,7 +50,17 @@ export function MovimientosHoy({ className }: { className?: string }) {
           </ul>
         )}
       <CheckinDrawer reserva={checkin} onClose={() => setCheckin(null)} />
-      <CheckoutDrawer reserva={checkout} onClose={() => setCheckout(null)} />
+      <CheckoutDrawer reserva={checkout} onClose={() => setCheckout(null)}
+        extra={checkout && <FrigobarAviso onRegistrar={() => navigate(`/caja/venta?hab=${checkout.habitacion}`)} />} />
     </Panel>
+  )
+}
+
+export function FrigobarAviso({ onRegistrar }: { onRegistrar: () => void }) {
+  return (
+    <section className="flex items-center justify-between gap-3 rounded-xl border border-line px-4 py-3">
+      <div><h3 className="text-[14px] font-semibold">¿Consumió algo del frigobar?</h3><p className="text-xs text-ink-3">Se cobra antes de la salida con su ficha A&amp;B.</p></div>
+      <Button size="sm" icon="plus" onClick={onRegistrar}>Registrar consumo</Button>
+    </section>
   )
 }

@@ -13,6 +13,8 @@ import { addHours, limaISO, limaParts } from '@/lib/time'
 import { digits, fechaDia, hora, money } from '@/lib/format'
 import { CheckinDrawer } from '@/features/estadias/CheckinDrawer'
 import type { ReservaDTO } from '@/dto/reserva'
+import { useCajaAbierta } from '@/features/caja/CajaLayout'
+import { Link } from 'react-router-dom'
 
 type Grupo = 'todas' | 'matrimonial' | 'suites' | 'grupos'
 const GRUPO: Record<Exclude<Grupo, 'todas'>, (n: string) => boolean> = {
@@ -44,6 +46,7 @@ export function NuevaReservaPage() {
   const [hecho, setHecho] = useState<{ texto: string; id: string; hoy: boolean } | null>(null)
   const [checkin, setCheckin] = useState<ReservaDTO | null>(null)
 
+  const caja = useCajaAbierta()
   const entrada = limaISO(fecha, horaEnt || '13:00')
   const habs = useQuery({ queryKey: ['habitaciones'], queryFn: habitacionesService.listar })
   const cfg = useQuery({ queryKey: ['config'], queryFn: habitacionesService.config })
@@ -112,6 +115,7 @@ export function NuevaReservaPage() {
         </div>
       </Notice>}
       <CheckinDrawer reserva={checkin} onClose={() => { setCheckin(null); setHecho(null) }} />
+      {!historica && caja.isSuccess && !caja.data && <Notice tone="warn">La caja está cerrada. <Link to="/caja" className="font-semibold underline">Abra la caja del turno</Link> para cobrar la reserva.</Notice>}
       {historica && <Notice tone="info">Modo carga histórica: registra estadías ya terminadas para alimentar el historial y los reportes. No cambia el estado de las habitaciones ni la caja del turno.</Notice>}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
