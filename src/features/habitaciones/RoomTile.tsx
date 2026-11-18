@@ -11,19 +11,28 @@ const ESTILO: Record<HabitacionDTO['estado'], { box: string; sub: string; dot: s
   fuera_servicio: { box: 'hatch-fuera text-bad border-transparent', sub: 'text-bad', dot: 'bg-st-fuera' },
 }
 
-/** Ficha de habitación para la grilla por piso. */
-export function RoomTile({ h, footer, onClick, selected }: { h: HabitacionDTO; footer?: ReactNode; onClick?: () => void; selected?: boolean }) {
+/** Ficha de habitación para la grilla por piso. `accion` agrega un botón rápido (p. ej. «Lista»). */
+export function RoomTile({ h, footer, onClick, selected, accion }:
+  { h: HabitacionDTO; footer?: ReactNode; onClick?: () => void; selected?: boolean; accion?: { label: string; onClick: () => void; loading?: boolean } }) {
   const e = ESTILO[h.estado]
   const contexto = h.estado === 'fuera_servicio' ? h.motivo_fuera : h.estado === 'limpia' ? 'Libre' : h.estado === 'ocupada' ? 'En casa' : ''
   return (
-    <button type="button" onClick={onClick} aria-label={`Habitación ${h.numero}, ${h.estado.replace('_', ' ')}`}
-      className={cx('flex min-h-24 min-w-0 flex-col gap-1.5 rounded-xl border px-3 py-2.5 text-left', e.box, selected && 'ring-3 ring-terra')}>
-      <span className="flex items-center justify-between">
-        <span className="font-mono text-[17px] font-medium leading-5">{h.numero}</span>
-        <span className={cx('size-2 rounded-full', e.dot)} />
-      </span>
-      <span className={cx('truncate text-[11.5px] leading-[14px]', e.sub)}>{habitacionesService.nombreCorto(h.categoria.nombre)}</span>
-      <span className="mt-auto truncate text-xs font-medium">{footer ?? contexto}</span>
-    </button>
+    <div className={cx('flex min-h-24 min-w-0 flex-col rounded-xl border', e.box, selected && 'ring-3 ring-terra')}>
+      <button type="button" onClick={onClick} aria-label={`Habitación ${h.numero}, ${h.estado.replace('_', ' ')}`}
+        className="flex flex-1 flex-col gap-1.5 px-3 pb-1.5 pt-2.5 text-left">
+        <span className="flex w-full items-center justify-between">
+          <span className="font-mono text-[17px] font-medium leading-5">{h.numero}</span>
+          <span className={cx('size-2 rounded-full', e.dot)} />
+        </span>
+        <span className={cx('w-full truncate text-[11.5px] leading-[14px]', e.sub)}>{habitacionesService.nombreCorto(h.categoria.nombre)}</span>
+        {!accion && <span className="mt-auto w-full truncate text-xs font-medium">{footer ?? contexto}</span>}
+      </button>
+      {accion && (
+        <button type="button" onClick={accion.onClick} disabled={accion.loading}
+          className="mx-2 mb-2 h-7 rounded-md border border-current/25 bg-white text-xs font-semibold disabled:opacity-60">
+          {accion.loading ? '…' : accion.label}
+        </button>
+      )}
+    </div>
   )
 }

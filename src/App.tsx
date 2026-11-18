@@ -6,6 +6,9 @@ import { LoginPage } from '@/features/auth/LoginPage'
 import { InicioPage } from '@/features/inicio/InicioPage'
 import { HabitacionesPage } from '@/features/habitaciones/HabitacionesPage'
 import { TarifasPage } from '@/features/habitaciones/TarifasPage'
+import { CalendarioPage } from '@/features/reservas/CalendarioPage'
+import { NuevaReservaPage } from '@/features/reservas/NuevaReservaPage'
+import { HistorialPage } from '@/features/reservas/HistorialPage'
 
 function Protegida() {
   const { ready, auth, turno } = useSession()
@@ -26,7 +29,9 @@ export function App() {
         <Route index element={<InicioPage />} />
         <Route path="habitaciones" element={<HabitacionesPage />} />
         <Route path="habitaciones/tarifas" element={<TarifasPage />} />
-        <Route path="reservas/*" element={<Proximamente titulo="Reservas" />} />
+        <Route path="reservas" element={<CalendarioPage />} />
+        <Route path="reservas/nueva" element={<NuevaReservaPage />} />
+        <Route path="reservas/historial" element={<HistorialPage />} />
         <Route path="caja/*" element={<Proximamente titulo="Caja" />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

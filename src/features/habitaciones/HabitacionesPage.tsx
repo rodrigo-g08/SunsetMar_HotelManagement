@@ -5,10 +5,20 @@ import { ErrorBox, Icon, Loading, PageHeader, cx } from '@/components/ui'
 import { ESTADOS_HABITACION, type EstadoHabitacion } from '@/dto/common'
 import { habitacionesService } from '@/services/habitacionesService'
 import { RoomTile } from './RoomTile'
+import { EstadoModal, useCambiarEstado } from './EstadoModal'
+import type { HabitacionDTO } from '@/dto/habitacion'
 
 export function HabitacionesPage() {
   const q = useQuery({ queryKey: ['habitaciones'], queryFn: habitacionesService.listar })
   const [filtro, setFiltro] = useState<EstadoHabitacion | 'todas'>('todas')
+  const [abierta, setAbierta] = useState<HabitacionDTO | null>(null)
+  const cambiar = useCambiarEstado()
+  const rapida = (h: HabitacionDTO) => {
+    const destino = h.estado === 'sucia' ? 'en_limpieza' : h.estado === 'en_limpieza' ? 'limpia' : null
+    if (!destino) return undefined
+    return { label: destino === 'limpia' ? 'Lista' : 'Limpiar', loading: cambiar.isPending && cambiar.variables?.numero === h.numero,
+      onClick: () => cambiar.mutate({ numero: h.numero, estado: destino }) }
+  }
   const habs = useMemo(() => q.data ?? [], [q.data])
   const conteo = habitacionesService.conteo(habs)
   const visibles = filtro === 'todas' ? habs : habs.filter((h) => h.estado === filtro)
@@ -32,12 +42,14 @@ export function HabitacionesPage() {
             <section key={p.piso} className="flex flex-col gap-2">
               <h2 className="text-[15px] font-semibold">Piso {p.piso} <span className="text-xs font-normal text-ink-3">{p.habitaciones.length}</span></h2>
               <div className="grid grid-cols-3 gap-2 sm:grid-cols-6 lg:grid-cols-12">
-                {p.habitaciones.map((h) => <RoomTile key={h.numero} h={h} />)}
+                {p.habitaciones.map((h) => <RoomTile key={h.numero} h={h} onClick={() => setAbierta(h)} accion={rapida(h)} />)}
               </div>
             </section>
           ))}
         </div>
       )}
+      {cambiar.error && <ErrorBox error={cambiar.error} />}
+      <EstadoModal h={abierta ? habs.find((x) => x.numero === abierta.numero) ?? null : null} onClose={() => setAbierta(null)} />
     </>
   )
 }
